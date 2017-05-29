@@ -48,3 +48,25 @@ def lists: Generator[List[Int]] = for {
   isEmpty <- booleans
   list <- if (isEmpty) emptyLists else nonEmptyLists
 } yield list
+
+/*
+exercise: generate random trees
+*/
+
+trait Tree
+case class Inner(left: Tree, right: Tree) extends Tree
+case class Leaf(x: Int) extends Tree
+
+// generate a leaf node
+def leaf: Generator[Leaf] = for (x <- integers) yield Leaf(x)
+
+// generate an inner node
+def inner: Generator[Inner] = for (x <- trees; y <- trees) yield Inner(x, y)
+
+// generate a tree
+def trees: Generator[Tree] = {
+  for {
+    isBranch <- booleans
+    branch <- if (isBranch) inner else leaf
+  } yield branch
+}
