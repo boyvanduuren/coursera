@@ -35,10 +35,28 @@ case class Pouring(capacity: Vector[Int]) {
   class Path(history: List[Move]) {
     def endState: State = (history foldRight initialState) (_ change _)
     def extend(move: Move) = new Path(move :: history)
-    override def toString = history.reverse mkString " " + "--> " + endState
+    override def toString = (history.reverse mkString " " + "-> ") + "==> " + endState
   }
 
   val initialPath = new Path(Nil)
 
-  def from(paths: Set[Path]): Stream[Set[Path]] = ???
+  def from(paths: Set[Path], explored: Set[State]): Stream[Set[Path]] =
+    if (paths.isEmpty) Stream.empty
+    else {
+      val more = for {
+        path <- paths
+        next <- moves map path.extend
+        if !(explored contains next.endState)
+      } yield next
+      paths #:: from(more, explored ++ (more map (_.endState)))
+    }
+
+  val pathSets = from(Set(initialPath), Set(initialState))
+
+  def solutions(target: Int): Stream[Path] =
+    for {
+      pathSet <- pathSets
+      path <- pathSet
+      if path.endState contains target
+    } yield path
 }
