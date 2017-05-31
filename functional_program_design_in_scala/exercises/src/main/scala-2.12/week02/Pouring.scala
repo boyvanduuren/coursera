@@ -1,6 +1,6 @@
 package week02
 
-class Pouring(capacity: Vector[Int]) {
+case class Pouring(capacity: Vector[Int]) {
 
   // States
   type State = Vector[Int]
