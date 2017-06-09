@@ -78,4 +78,29 @@ class BloxorzSuite extends FunSuite {
     }
   }
 
+  test("given a starting block with history in level 1, assert legal neighbord") {
+    new Level1 {
+      val right = (Block(Pos(1, 2), Pos(1, 3)), List(Right, Left, Up))
+      val down = (Block(Pos(2, 1), Pos(3, 1)), List(Down, Left, Up))
+      neighborsWithHistory(Block(Pos(1, 1), Pos(1, 1)), List(Left, Up)) foreach
+        ((el) => assert(el == right || el == down))
+    }
+  }
+
+  test("given a history, make sure the neighbors don't include cycles") {
+    new Level1 {
+      val seqOfNewNeighbors = newNeighborsOnly(
+        Set(
+          (Block(Pos(1,2),Pos(1,3)), List(Right,Left,Up)),
+          (Block(Pos(2,1),Pos(3,1)), List(Down,Left,Up))
+        ).toStream,
+
+        Set(Block(Pos(1,2),Pos(1,3)), Block(Pos(1,1),Pos(1,1)))).toSeq
+
+      seqOfNewNeighbors.headOption match {
+        case Some((block, history)) => block == Block(Pos(2, 1), Pos(3, 1)) && history == List(Down, Left, Up)
+        case default => false
+      }
+    }
+  }
 }
