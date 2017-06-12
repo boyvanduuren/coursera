@@ -11,7 +11,7 @@ trait Solver extends GameDef {
    * Returns `true` if the block `b` is at the final position
    */
   def done(b: Block): Boolean = b match {
-    case Block(b1, b2) => b1 == goal || b2 == goal
+    case Block(b1, b2) => b1 == goal && b2 == goal
   }
 
   /**
@@ -68,10 +68,10 @@ trait Solver extends GameDef {
    */
   def from(initial: Stream[(Block, List[Move])],
            explored: Set[Block]): Stream[(Block, List[Move])] = initial match {
-    case Stream.Empty => Stream.empty
+    case Stream.Empty => Stream.Empty
     case (block, moves) #:: tail =>
-      val newNeighbors = newNeighborsOnly(neighborsWithHistory(block, moves), explored + block)
-      newNeighbors ++ from(newNeighbors ++ initial, explored + block)
+      val newNeighbors = newNeighborsOnly(neighborsWithHistory(block, moves), explored)
+      (block, moves) #:: from(tail #::: newNeighbors, explored + block)
   }
 
   /**
@@ -96,6 +96,6 @@ trait Solver extends GameDef {
    */
   lazy val solution: List[Move] = pathsToGoal.headOption match {
     case None => List()
-    case Some((block, moves)) => moves
+    case Some((block, moves)) => moves.reverse
   }
 }
